@@ -112,8 +112,8 @@ icetrack-edge/
 
 ## Integrantes
 
-| Nome              | RM        |
-| ----------------- | --------- |
-| Artur Fabi Brandi | RM570258  |
-| Victor Godoy      | Preencher |
-| Victor Heineken   | Preencher |
+| Nome                           | RM       |
+| ------------------------------ | -------- |
+| Artur Fabi Brandi              | RM570258 |
+| Victor Bertacchini De Godoy    | RM571452 |
+| Victor Lula Heineken Rodrigues | RM570782 |
