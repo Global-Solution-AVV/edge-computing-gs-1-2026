@@ -12,10 +12,10 @@ Desde 1979, a extensão do gelo ártico diminuiu em média **13% por década** (
 
 ## Arquitetura
 
-| Fonte                             | Tipo de dado                 |
-| --------------------------------- | ---------------------------- |
-| Satélites                         | dados orbitais               |
-| **Estação Arduino (este módulo)** | dados de campo em tempo real |
+| Fonte                              | Tipo de dado                 |
+| ---------------------------------- | ---------------------------- |
+| Satélites                          | dados orbitais               |
+| **Estação Arduino (esta entrega)** | dados de campo em tempo real |
 
 Ambas as fontes alimentam o **Backend em Python**, que processa e entrega os dados ao usuário.
 
@@ -92,7 +92,7 @@ Protótipo desenvolvido e validado no **Wokwi**.
 
 [clique aqui para acessar a simulação](https://wokwi.com/projects/465099232719792129)
 
-- Altere `"temperatura"` do DHT22 para testar valores acima/abaixo de -2°C
+- Altere a `"temperatura"` do DHT22 para testar valores acima/abaixo de -2°C
 - Ajuste a intensidade de luz sobre o LDR para variar o albedo
 
 ## Estrutura do Repositório
