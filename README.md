@@ -6,24 +6,18 @@ A IceTrack é uma plataforma de monitoramento do degelo glacial que combina dado
 
 A entrega de **Edge Computing & Computer Systems** simula uma estação de campo polar, complementando dados orbitais (satélites NASA/ESA/INPE) com medições locais de temperatura e albedo em tempo real.
 
----
-
 ## O Problema
 
 Desde 1979, a extensão do gelo ártico diminuiu em média **13% por década** (NSIDC). O derretimento das calotas polares eleva o nível dos oceanos, afetando centenas de milhões de pessoas em regiões costeiras. Monitorar esse processo exige dados orbitais de larga escala **e** medições locais de campo — este protótipo representa a segunda camada.
-
----
 
 ## Arquitetura
 
 | Fonte                             | Tipo de dado                 |
 | --------------------------------- | ---------------------------- |
-| Satélites (NASA / ESA / INPE)     | dados orbitais               |
+| Satélites                         | dados orbitais               |
 | **Estação Arduino (este módulo)** | dados de campo em tempo real |
 
 Ambas as fontes alimentam o **Backend em Python**, que processa e entrega os dados ao usuário.
-
----
 
 ## Componentes
 
@@ -33,8 +27,6 @@ Ambas as fontes alimentam o **Backend em Python**, que processa e entrega os dad
 | Fotoresistor LDR | A0            | Albedo simulado — reflectividade da superfície |
 | LCD I2C 16x2     | SDA=A4/SCL=A5 | Exibição dos dados em tempo real               |
 | LED vermelho     | D13           | Alerta visual de degelo ativo                  |
-
----
 
 ## Lógica dos Sensores
 
@@ -98,22 +90,18 @@ Timestamp(ms) | Temp(C) | Albedo(%) | IDegelo(%) | Alerta
 
 Protótipo desenvolvido e validado no **Wokwi**.
 
-[projeto no Wokwi](https://wokwi.com/projects/465099232719792129)
+[clique aqui para acessar a simulação](https://wokwi.com/projects/465099232719792129)
 
 - Altere `"temperatura"` do DHT22 para testar valores acima/abaixo de -2°C
 - Ajuste a intensidade de luz sobre o LDR para variar o albedo
-
----
 
 ## Estrutura do Repositório
 
 ```
 icetrack-edge/
 ├── icetrack.cpp   — código principal Arduino
-└── README.md           — este arquivo
+└── README.md      — este arquivo
 ```
-
----
 
 ## Referências
 
@@ -122,8 +110,6 @@ icetrack-edge/
 - NASA Earthdata — MODIS Snow and Ice Products: https://earthdata.nasa.gov
 - ESA Copernicus — Sentinel-2 Surface Reflectance: https://browser.dataspace.copernicus.eu
 
----
-
 ## Integrantes
 
 | Nome              | RM        |
@@ -131,5 +117,3 @@ icetrack-edge/
 | Artur Fabi Brandi | RM570258  |
 | Victor Godoy      | Preencher |
 | Victor Heineken   | Preencher |
-
----
