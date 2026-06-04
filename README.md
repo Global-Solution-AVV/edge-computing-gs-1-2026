@@ -1,193 +1,137 @@
-# IceTrack 🧊
-### Estação de Monitoramento Polar — FIAP Global Solution 2026
+# IceTrack
 
-Plataforma de monitoramento e projeção do degelo glacial que consome dados satelitais
-públicos para gerar visualizações históricas e alertas científicos. Esta entrega
-corresponde ao módulo de **Edge Computing & Computer Systems**, que simula o nó
-físico de coleta de dados em campo — a estação polar que complementa os dados orbitais
-com medições locais em tempo real.
+A IceTrack é uma plataforma de monitoramento do degelo glacial que combina dados satelitais públicos com sensores físicos de campo para rastrear, analisar e projetar a retração das geleiras ao longo do tempo. A solução consome dados tabulares do NSIDC — registros mensais de extensão de gelo marinho disponíveis desde 1979, derivados de satélites e os processa para gerar visualizações históricas, cálculo de tendência por modelagem exponencial e projeções de impacto no nível dos oceanos.
 
----
+## Estação de Monitoramento Polar
+
+A entrega de **Edge Computing & Computer Systems** simula uma estação de campo polar, complementando dados orbitais (satélites NASA/ESA/INPE) com medições locais de temperatura e albedo em tempo real.
 
 ## O Problema
 
-As geleiras do planeta estão em retração acelerada. Desde 1979, a extensão do gelo
-ártico diminuiu em média **13% por década** (fonte: NSIDC — National Snow and Ice
-Data Center). O derretimento do gelo marinho e das calotas polares contribui diretamente
-para a elevação do nível dos oceanos, afetando centenas de milhões de pessoas em regiões
-costeiras.
+Desde 1979, a extensão do gelo ártico diminuiu em média **13% por década** (NSIDC). O derretimento das calotas polares eleva o nível dos oceanos, afetando centenas de milhões de pessoas em regiões costeiras. Monitorar esse processo exige dados orbitais de larga escala **e** medições locais de campo — este protótipo representa a segunda camada.
 
-Monitorar esse processo em tempo real exige dois tipos de dados:
+## Arquitetura
 
-- **Dados orbitais** — imagens satelitais de larga escala (NASA, ESA, INPE)
-- **Dados de campo** — medições locais de temperatura superficial e reflectividade
-  do gelo, coletadas por estações físicas instaladas nas zonas polares
+| Fonte                              | Tipo de dado                 |
+| ---------------------------------- | ---------------------------- |
+| Satélites                          | dados orbitais               |
+| **Estação Arduino (esta entrega)** | dados de campo em tempo real |
 
-Este protótipo representa a segunda camada: **a estação de campo**.
+Ambas as fontes alimentam o **Backend em Python**, que processa e entrega os dados ao usuário.
 
----
+## Componentes
 
-## A Solução — IceTrack
+| Componente       | Pino          | Função                                         |
+| ---------------- | ------------- | ---------------------------------------------- |
+| DHT22            | D8            | Temperatura superficial do gelo (°C)           |
+| Fotoresistor LDR | A0            | Albedo simulado — reflectividade da superfície |
+| LCD I2C 16x2     | SDA=A4/SCL=A5 | Exibição dos dados em tempo real               |
+| LED built-in     | D13           | Alerta visual de degelo ativo                  |
 
-O IceTrack é composto por três camadas integradas:
-[ Satélites (NASA / ESA / INPE) ]
-↓ dados orbitais
-[ Backend Python ]  ←→  [ Estação Arduino (este repositório) ]
-↓ dados processados
-[ Dashboard Web / App de consulta ]
-
-A estação Arduino coleta temperatura superficial e índice de albedo local, calcula
-o índice de degelo em tempo real e emite alertas quando as condições indicam degelo
-ativo. Esses dados seriam transmitidos via protocolo IoT (MQTT) para o backend,
-onde são cruzados com as imagens satelitais para gerar projeções de longo prazo.
-
----
-
-## Componentes do Protótipo
-
-| Componente | Pino | Função |
-|---|---|---|
-| DHT22 | D8 | Temperatura superficial do gelo (°C) |
-| Fotoresistor LDR | A0 | Albedo simulado — reflectividade da superfície |
-| LCD I2C 16x2 | SDA=A4 / SCL=A5 | Exibição dos dados em tempo real |
-| LED vermelho | D13 | Alerta visual de degelo ativo |
-
----
-
-## Como Interpretar o Protótipo
+## Lógica dos Sensores
 
 ### Temperatura (DHT22)
 
-O sensor DHT22 mede a temperatura do ambiente simulando a temperatura superficial
-de uma geleira. Na realidade, estações polares usam termômetros de contato ou
-termômetros infravermelhos apontados para a superfície do gelo.
-
-**Referência de valores:**
-- Abaixo de **-10°C** → superfície estável, degelo mínimo
-- Entre **-10°C e -2°C** → zona de atenção
-- Acima de **-2°C** → limiar crítico, degelo ativo → **LED acende**
-
-O limiar de -2°C é baseado no ponto em que a taxa de fusão superficial do gelo
-marinho se torna significativa, conforme documentado pelo
-IPCC AR6 (2021), Capítulo 9.
+- Abaixo de -10°C: superfície estável
+- Entre -10°C e -2°C: zona de atenção
+- Acima de -2°C: limiar crítico, degelo ativo — LED acende (referência: IPCC AR6, Cap. 9)
 
 ### Albedo (LDR)
 
-O fotoresistor simula um **piranômetro de reflexão** — instrumento real usado em
-estações polares para medir o albedo superficial, ou seja, a fração da radiação
-solar que a superfície reflete.
+Simula um piranômetro de reflexão. Fórmula aplicada:
 
-**Fórmula aplicada:**
-albedo(%) = map(leitura_LDR, 0, 1023, 30, 90)
-Equivalente a:
-albedo(%) = 30 + (leitura_LDR / 1023) × 60
+```
+albedo(%) = 30 + (leitura_LDR / 1023) x 60
+```
 
-**Referência dos limites (NSIDC / IPCC AR6):**
-
-| Tipo de superfície | Albedo |
-|---|---|
-| Neve fresca / gelo limpo | ~90% |
-| Gelo compactado antigo | ~50–60% |
-| Gelo sujo (algas, carbono) | ~30% |
-| Água exposta (ex-geleira) | ~6% |
-
-Quanto mais luz o LDR recebe, maior o albedo calculado — simulando uma superfície
-mais reflexiva (gelo fresco). Pouca luz = albedo baixo = superfície degradada.
+Referência (NSIDC / IPCC AR6): neve fresca ~90%, gelo antigo ~50-60%, gelo sujo ~30%, água exposta ~6%.
 
 ### Índice de Degelo (Dg)
 
-Calculado exclusivamente a partir da temperatura, usando interpolação linear
-entre os extremos da faixa polar monitorada:
-Se temp ≤ -30°C  →  Dg = 0%
-Se temp ≥  10°C  →  Dg = 100%
-Caso contrário   →  Dg = (temp - (-30)) / (10 - (-30)) × 100
+Interpolação linear entre os extremos da faixa polar:
 
-**Interpretação:**
-- **0–20%** → condições polares normais, gelo estável
-- **21–50%** → aquecimento moderado, monitoramento necessário
-- **51–80%** → degelo significativo em curso
-- **81–100%** → fusão acelerada, situação crítica
+```
+temp <= -30°C  ->  Dg = 0%
+temp >=  10°C  ->  Dg = 100%
+caso contrário ->  Dg = (temp + 30) / 40 x 100
+```
 
-### Ciclo de Retroalimentação (Ice-Albedo Feedback)
+- 0-20%: gelo estável
+- 21-50%: aquecimento moderado
+- 51-80%: degelo significativo
+- 81-100%: fusão acelerada, situação crítica
 
-O motivo pelo qual monitorar **ambos** os sensores juntos é cientificamente relevante:
-Gelo derrete → expõe água escura → albedo cai (de 90% para ~6%)
-↓
-Superfície absorve mais calor solar
-↓
-Temperatura sobe → mais gelo derrete → ciclo se acelera
+### Ciclo Ice-Albedo Feedback
 
-Uma queda progressiva no albedo lido pelo LDR, mesmo sem aumento imediato
-de temperatura, é sinal de degradação da superfície glacial — exatamente o
-que estações de campo reais monitoram para antecipar eventos de degelo.
+Gelo derrete → expõe água escura → albedo cai → superfície absorve mais calor → temperatura sobe → mais gelo derrete.
+Uma queda progressiva no albedo, mesmo sem aumento de temperatura, é sinal precoce de degradação glacial.
 
 ### Display LCD
-Linha 0:  [sinal][temp]°C        [status]
-Linha 1:  Dg:[índice]% Al:[albedo]%
-Exemplo normal:   -16.5°C          OK
-Dg: 11% Al:67%
-Exemplo de alerta: +2.3°C        ALERT
-Dg: 80% Al:38%
 
-### LED de Alerta
+```
+Linha 0:  [sinal][temp]°C    [status]
+Linha 1:  Dg:[x]%  Al:[x]%
 
-Permanece apagado enquanto `temp ≤ -2°C`. Passa a **piscar a cada 1 segundo**
-quando a temperatura ultrapassa o limiar crítico, indicando degelo ativo.
-O estado do LED é alternado por flag a cada ciclo de leitura, sem uso de
-`delay()`, mantendo o loop responsivo.
+Normal:   -16.5°C          OK      /  Dg:11%  Al:67%
+Alerta:    +2.3°C       ALERT      /  Dg:80%  Al:38%
+```
 
 ### Monitor Serial
 
-Todas as leituras são enviadas ao monitor serial (9600 baud) em formato de
-tabela para registro e análise:
+```
 Timestamp(ms) | Temp(C) | Albedo(%) | IDegelo(%) | Alerta
-1000 ms    | -16.5 C  | 67%       | 11%        | Normal
-2000 ms    | -16.5 C  | 65%       | 11%        | Normal
-3000 ms    | +2.3 C   | 38%       | 80%        | *** ALERTA ***
+1000 ms       | -16.5 C |       67% |        11% | Normal
+3000 ms       |  +2.3 C |       38% |        80% | *** ALERTA ***
+```
 
 ---
+
+## Estrutura do Circuito
+
+![Diagrama do circuito e monitor serial no Wokwi](images/diagrama.png)
+
+O circuito é montado em protoboard conectada ao Arduino UNO:
+
+- **DHT22** ligado ao pino D8 (VCC → 5V, GND → GND, DATA → D8 com resistor pull-up de 10kΩ)
+- **LDR** ligado ao pino A0 em divisor de tensão com resistor de 10kΩ para GND
+- **LCD I2C 16x2** ligado ao barramento I2C (SDA → A4, SCL → A5, VCC → 5V, GND → GND)
+- **LED built-in** do Arduino UNO (pino D13) — sem componente externo necessário
 
 ## Simulação
 
-O protótipo foi desenvolvido e validado no simulador **Wokwi**.
+Protótipo desenvolvido e validado no **Wokwi**.
 
-🔗 [Link do projeto no Wokwi](#) ← substituir pelo link real antes da entrega
+[clique aqui para acessar a simulação](https://wokwi.com/projects/465099232719792129)
 
-Para simular diferentes cenários:
-- Altere o atributo `"temperature"` do DHT22 no `diagram.json` para testar
-  valores abaixo e acima do limiar de -2°C
-- Ajuste a intensidade de luz sobre o LDR no simulador para variar o albedo
+### Passo a passo para executar
 
----
+1. Acesse o link da simulação acima.
+2. Clique no botão **▶ Start Simulation** (canto superior esquerdo).
+3. O LCD exibirá a tela de inicialização **"IceTrack v1.0 / Iniciando..."** por 2 segundos e depois entrará em operação.
+4. Abra o **Serial Monitor** (ícone de terminal na barra inferior do Wokwi) para ver os dados tabulados em tempo real.
+5. **Testar alerta de degelo:** clique sobre o componente DHT22 no circuito → ajuste o slider de **Temperature** para um valor acima de **-2°C** → o LED vermelho começará a piscar e o LCD mostrará `ALERT`.
+6. **Testar albedo:** clique sobre o **LDR** no circuito → ajuste o slider de intensidade de luz → o valor `Al:%` na linha 2 do LCD será atualizado.
+7. Para retornar à condição estável, ajuste a temperatura do DHT22 para abaixo de **-2°C** → o LED apaga e o LCD volta a exibir `OK`.
 
 ## Estrutura do Repositório
-icetrack-edge/
-├── icetrack_edge.ino   — código principal Arduino
-├── diagram.json        — circuito Wokwi
-├── README.md           — este arquivo
-└── integrantes.txt     — nomes e RMs da equipe
 
----
+```
+icetrack-edge/
+├── icetrack.cpp   — código principal Arduino
+└── README.md      — este arquivo
+```
 
 ## Referências
 
-- NSIDC — National Snow and Ice Data Center: https://nsidc.org/data/g02135
-- IPCC Sixth Assessment Report (AR6), 2021 — Chapter 9: Ocean, Cryosphere and Sea Level Change
+- NSIDC: https://nsidc.org/data/g02135
+- IPCC AR6 (2021), Chapter 9: Ocean, Cryosphere and Sea Level Change
 - NASA Earthdata — MODIS Snow and Ice Products: https://earthdata.nasa.gov
 - ESA Copernicus — Sentinel-2 Surface Reflectance: https://browser.dataspace.copernicus.eu
 
----
-
 ## Integrantes
 
-| Nome | RM |
-|---|---|
-| — | — |
-| — | — |
-| — | — |
-| — | — |
-| — | — |
-
----
-
-*Global Solution 2026 · FIAP · Engenharia de Software 1º Ano · Período: 25/05 – 09/06/2026*
+| Nome                           | RM       |
+| ------------------------------ | -------- |
+| Artur Fabi Brandi              | RM570258 |
+| Victor Bertacchini De Godoy    | RM571452 |
+| Victor Lula Heineken Rodrigues | RM570782 |
