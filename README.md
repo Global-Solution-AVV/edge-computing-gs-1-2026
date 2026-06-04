@@ -109,7 +109,7 @@ Protótipo desenvolvido e validado no **Wokwi**.
 2. Clique no botão **▶ Start Simulation** (canto superior esquerdo).
 3. O LCD exibirá a tela de inicialização **"IceTrack v1.0 / Iniciando..."** por 2 segundos e depois entrará em operação.
 4. Abra o **Serial Monitor** (ícone de terminal na barra inferior do Wokwi) para ver os dados tabulados em tempo real.
-5. **Testar alerta de degelo:** clique sobre o componente DHT22 no circuito → ajuste o slider de **Temperature** para um valor acima de **-2°C** → o LED vermelho começará a piscar e o LCD mostrará `ALERT`.
+5. **Testar alerta de degelo:** clique sobre o componente DHT22 no circuito → ajuste o slider de **Temperature** para um valor acima de **-2°C** → o LED built-in começará a piscar e o LCD mostrará `ALERT`.
 6. **Testar albedo:** clique sobre o **LDR** no circuito → ajuste o slider de intensidade de luz → o valor `Al:%` na linha 2 do LCD será atualizado.
 7. Para retornar à condição estável, ajuste a temperatura do DHT22 para abaixo de **-2°C** → o LED apaga e o LCD volta a exibir `OK`.
 
@@ -117,8 +117,10 @@ Protótipo desenvolvido e validado no **Wokwi**.
 
 ```
 icetrack-edge/
-├── icetrack.cpp   — código principal Arduino
-└── README.md      — este arquivo
+├── icetrack.cpp      — código principal Arduino
+├── images/
+│   └── diagrama.png  — diagrama do circuito e monitor serial
+└── README.md         — este arquivo
 ```
 
 ## Referências
