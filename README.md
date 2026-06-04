@@ -26,7 +26,7 @@ Ambas as fontes alimentam o **Backend em Python**, que processa e entrega os dad
 | DHT22            | D8            | Temperatura superficial do gelo (°C)           |
 | Fotoresistor LDR | A0            | Albedo simulado — reflectividade da superfície |
 | LCD I2C 16x2     | SDA=A4/SCL=A5 | Exibição dos dados em tempo real               |
-| LED vermelho     | D13           | Alerta visual de degelo ativo                  |
+| LED built-in     | D13           | Alerta visual de degelo ativo                  |
 
 ## Lógica dos Sensores
 
@@ -86,14 +86,32 @@ Timestamp(ms) | Temp(C) | Albedo(%) | IDegelo(%) | Alerta
 
 ---
 
+## Estrutura do Circuito
+
+![Diagrama do circuito e monitor serial no Wokwi](images/diagrama.png)
+
+O circuito é montado em protoboard conectada ao Arduino UNO:
+
+- **DHT22** ligado ao pino D8 (VCC → 5V, GND → GND, DATA → D8 com resistor pull-up de 10kΩ)
+- **LDR** ligado ao pino A0 em divisor de tensão com resistor de 10kΩ para GND
+- **LCD I2C 16x2** ligado ao barramento I2C (SDA → A4, SCL → A5, VCC → 5V, GND → GND)
+- **LED built-in** do Arduino UNO (pino D13) — sem componente externo necessário
+
 ## Simulação
 
 Protótipo desenvolvido e validado no **Wokwi**.
 
 [clique aqui para acessar a simulação](https://wokwi.com/projects/465099232719792129)
 
-- Altere a `"temperatura"` do DHT22 para testar valores acima/abaixo de -2°C
-- Ajuste a intensidade de luz sobre o LDR para variar o albedo
+### Passo a passo para executar
+
+1. Acesse o link da simulação acima.
+2. Clique no botão **▶ Start Simulation** (canto superior esquerdo).
+3. O LCD exibirá a tela de inicialização **"IceTrack v1.0 / Iniciando..."** por 2 segundos e depois entrará em operação.
+4. Abra o **Serial Monitor** (ícone de terminal na barra inferior do Wokwi) para ver os dados tabulados em tempo real.
+5. **Testar alerta de degelo:** clique sobre o componente DHT22 no circuito → ajuste o slider de **Temperature** para um valor acima de **-2°C** → o LED vermelho começará a piscar e o LCD mostrará `ALERT`.
+6. **Testar albedo:** clique sobre o **LDR** no circuito → ajuste o slider de intensidade de luz → o valor `Al:%` na linha 2 do LCD será atualizado.
+7. Para retornar à condição estável, ajuste a temperatura do DHT22 para abaixo de **-2°C** → o LED apaga e o LCD volta a exibir `OK`.
 
 ## Estrutura do Repositório
 
